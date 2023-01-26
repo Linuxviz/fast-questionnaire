@@ -1,8 +1,10 @@
-from typing import Union, Optional, List
+import uuid
+from typing import Union, Optional, List, Dict
 
-from beanie import init_beanie, Document, Link
+from beanie import init_beanie, Document, Link, PydanticObjectId
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -11,7 +13,25 @@ DB
 """
 
 
-# class QuestionSet(Document):
+class OpenCallback(BaseModel):
+    id: uuid.UUID = uuid.uuid4()
+    next_question: uuid.UUID
+
+
+class OpenQuestion(BaseModel):
+    id: uuid.UUID = uuid.uuid4()
+    text: str
+    next_question: uuid.UUID
+
+
+class QuestionSet(Document):
+    name: str
+    description: str
+    email_letter: Optional[str]
+    questions: List[OpenQuestion]
+    callbacks: Dict[uuid.UUID, OpenCallback]  # key - question_id
+    users: "List[Link[User]]"
+
 
 class User(Document):  # This is the model
     user_name: str
@@ -20,7 +40,10 @@ class User(Document):  # This is the model
     last_name: Optional[str] = None
     password: str
     is_active: bool
-    # questions: List[Link[QuestionSet]]
+    questions: List[Link[QuestionSet]]
+
+
+QuestionSet.update_forward_refs()
 
 
 async def db_init():
@@ -46,7 +69,7 @@ async def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/a")
-async def read_item(item: User):
-    new_user = await User(**item.dict()).insert()
-    return new_user
+@app.get("/question_sets/{question_set_id}")
+async def read_item(question_set_id: PydanticObjectId) -> QuestionSet:
+    question_set = await QuestionSet.get(question_set_id)
+    return question_set
