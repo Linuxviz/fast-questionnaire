@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/app
+#    command: >
+#      sh -c "uvicorn main:app --reload"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+    depends_on:
+      - database
+
+
+  database:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db:/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
