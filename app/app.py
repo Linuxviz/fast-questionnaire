@@ -31,6 +31,7 @@ class QuestionSet(Document):
     questions: List[OpenQuestion]
     callbacks: Dict[str, OpenCallback]  # key - question_id # key ==uuid4
     users: "List[Link[User]]"
+    customer: "List[User]"
 
 
 class User(Document):  # This is the model
@@ -40,6 +41,9 @@ class User(Document):  # This is the model
     last_name: Optional[str] = None
     password: str
     is_active: bool
+    is_user: bool
+    is_respondent: bool
+    is_customer: bool
     questions: List[Link[QuestionSet]]
 
 
@@ -65,7 +69,28 @@ async def startup_event():
 
 
 """ Views """
+"""
+Views:
+respondent
+1) list of questions_sets get /s  GET api/v1/respondent/question_sets/
+2) start question_set post /id    POST api/v1/respondent/question_sets/{id} (start session, create user_answer_sets)
+3) Does anwser                     POST api/v1/respondent/user_answer/
+HR
+0) list of sets                   GET api/v1/hr/question_sets/
+0.1) question_set info            GET api/v1/hr/question_sets/{id}
+1) create question_sets post      POST api/v1/hr/question_sets/
+2) add question post              POST api/v1/hr/question/
+# 3) change data patch              
+# 4) start (change status) patch
+customer
+1) list of question_sets get      GET api/v1/customer/question_sets/
 
+Routers:
+root - api
+versioning - v1
+respondent, hr, customer
+
+"""
 
 @app.post("/")
 async def read_root():
