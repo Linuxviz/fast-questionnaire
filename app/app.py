@@ -6,7 +6,10 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 
+from routers.api import api_router
+
 app = FastAPI()
+app.include_router(api_router)
 
 """
 DB
@@ -67,30 +70,6 @@ async def startup_event():
     await db_init()
     print("complete")
 
-
-""" Views """
-"""
-Views:
-respondent
-1) list of questions_sets get /s  GET api/v1/respondent/question_sets/
-2) start question_set post /id    POST api/v1/respondent/question_sets/{id} (start session, create user_answer_sets)
-3) Does anwser                     POST api/v1/respondent/user_answer/
-HR
-0) list of sets                   GET api/v1/hr/question_sets/
-0.1) question_set info            GET api/v1/hr/question_sets/{id}
-1) create question_sets post      POST api/v1/hr/question_sets/
-2) add question post              POST api/v1/hr/question/
-# 3) change data patch              
-# 4) start (change status) patch
-customer
-1) list of question_sets get      GET api/v1/customer/question_sets/
-
-Routers:
-root - api
-versioning - v1
-respondent, hr, customer
-
-"""
 
 @app.post("/")
 async def read_root():

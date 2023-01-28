@@ -9,6 +9,6 @@ version_v1_router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-version_v1_router.include_router(respondent_router.router)
-version_v1_router.include_router(hr_router.router)
-version_v1_router.include_router(customer_router.router)
+version_v1_router.include_router(respondent_router)
+version_v1_router.include_router(hr_router)
+version_v1_router.include_router(customer_router)
