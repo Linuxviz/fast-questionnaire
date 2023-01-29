@@ -6,6 +6,9 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 
+from models.answer_set import AnswerSet
+from models.question_set import QuestionSet
+from models.user import User
 from routers.api import api_router
 
 app = FastAPI()
@@ -16,48 +19,11 @@ DB
 """
 
 
-class OpenCallback(BaseModel):
-    id: uuid.UUID = uuid.uuid4()
-    next_question: uuid.UUID
-
-
-class OpenQuestion(BaseModel):
-    id: uuid.UUID = uuid.uuid4()
-    text: str
-    next_question: uuid.UUID
-
-
-class QuestionSet(Document):
-    name: str
-    description: str
-    email_letter: Optional[str]
-    questions: List[OpenQuestion]
-    callbacks: Dict[str, OpenCallback]  # key - question_id # key ==uuid4
-    users: "List[Link[User]]"
-    customer: "List[User]"
-
-
-class User(Document):  # This is the model
-    user_name: str
-    name: Optional[str] = None
-    middle_name: Optional[str] = None
-    last_name: Optional[str] = None
-    password: str
-    is_active: bool
-    is_user: bool
-    is_respondent: bool
-    is_customer: bool
-    questions: List[Link[QuestionSet]]
-
-
-QuestionSet.update_forward_refs()
-
-
 async def db_init():
     # Create Motor client
     client = AsyncIOMotorClient("mongodb://database:27017/mongodb")
-    # Init beanie with the Product document class
-    await init_beanie(database=client.db_name, document_models=[User, QuestionSet])
+    # Init beanie
+    await init_beanie(database=client.db_name, document_models=[User, QuestionSet, AnswerSet])
 
 
 """
@@ -74,6 +40,7 @@ async def startup_event():
 @app.post("/")
 async def read_root():
     return {"Hello": "World"}
+
 
 @app.get("/question_sets/{question_set_id}")
 async def read_item(question_set_id: PydanticObjectId) -> QuestionSet:
