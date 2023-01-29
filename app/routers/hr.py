@@ -1,6 +1,8 @@
 from beanie import PydanticObjectId
 from fastapi import APIRouter
 
+from models.question_set import QuestionSet
+
 hr_router = APIRouter(
     prefix="/hr",
     responses={404: {"description": "Not found"}},
@@ -10,7 +12,7 @@ hr_router = APIRouter(
 
 @hr_router.get("/question_sets")
 async def list_of_respondent_question_set_sets():
-    pass
+    QuestionSet.find_all()
 
 
 @hr_router.get("/question_sets/{id}")
