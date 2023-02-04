@@ -3,6 +3,7 @@ from typing import Union, Optional, List, Dict
 
 from beanie import init_beanie, Document, Link, PydanticObjectId
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 
@@ -13,7 +14,7 @@ from routers.api import api_router
 
 app = FastAPI()
 app.include_router(api_router)
-
+add_pagination(app)
 """
 DB
 """
