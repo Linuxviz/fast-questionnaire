@@ -11,6 +11,10 @@ from models.answer_set import AnswerSet
 from models.question_set import QuestionSet
 from models.user import User
 from routers.api import api_router
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
 app = FastAPI()
 app.include_router(api_router)
@@ -27,6 +31,14 @@ async def db_init():
     await init_beanie(database=client.db_name, document_models=[User, QuestionSet, AnswerSet])
 
 
+async def test_db_init():
+    # Create Motor client
+    client = AsyncIOMotorClient("mongodb://database:27017/mongodb")
+    db = client['test_database']
+    # Init beanie
+    await init_beanie(database=db, document_models=[User, QuestionSet, AnswerSet])
+
+
 """
 ENDDB
 """
@@ -34,8 +46,12 @@ ENDDB
 
 @app.on_event("startup")
 async def startup_event():
-    await db_init()
-    print("complete")
+    if app.debug:
+        await test_db_init()
+        logger.info("App start with test db")
+    else:
+        await db_init()
+        logger.info("App start with normal db")
 
 
 @app.post("/")
