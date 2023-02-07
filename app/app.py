@@ -54,6 +54,14 @@ async def startup_event():
         logger.info("App start with normal db")
 
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    models = [User, QuestionSet, AnswerSet]
+    for model in models:
+        await model.get_motor_collection().drop()
+        await model.get_motor_collection().drop_indexes()
+
+
 @app.post("/")
 async def read_root():
     return {"Hello": "World"}
