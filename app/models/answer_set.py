@@ -8,7 +8,6 @@ from models.question_set import QuestionSet
 from models.user import User
 
 
-
 class UserAnswer(BaseModel):
     question: uuid.UUID
     answer: str
